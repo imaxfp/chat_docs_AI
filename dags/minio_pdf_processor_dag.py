@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+from functools import lru_cache
 from datetime import datetime
 from typing import List, Set, Optional
 from airflow import DAG
@@ -15,7 +16,6 @@ logger = logging.getLogger("airflow.task")
 MINIO_ENDPOINT = "minio:9000"
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin"
-BUCKET_NAME = "test1"
 EMBEDDING_SERVICE_URL = "http://extractor-typin-pdf-microservice:8000/process"
 POSTGRES_CONN_ID = "PDF_DB"
 
@@ -46,7 +46,7 @@ def _register_new_files(hook: PostgresHook, bucket: str, files: List[str]):
             "INSERT INTO airflow_file_registry (bucket, filename, status) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
             parameters=(bucket, file_name, 'pending')
         )
-        logger.info(f"Registered: {file_name} (pending)")
+        logger.info(f"Registered: [{bucket}] {file_name} (pending)")
 
 def _update_file_status(hook: PostgresHook, bucket: str, filename: str, status: str, error: Optional[str] = None):
     """
@@ -65,54 +65,105 @@ def _update_file_status(hook: PostgresHook, bucket: str, filename: str, status: 
         WHERE bucket = %s AND filename = %s
         AND (status != 'processed' OR %s = 'processed')
     """
-    # If the new status is 'processed', we allow the update.
-    # If the current status is already 'processed', we block updates to 'failed'.
     hook.run(query, parameters=(status, error, bucket, filename, status))
-    logger.info(f"Updated: {filename} -> status: {status}")
+    logger.info(f"Updated: [{bucket}] {filename} -> status: {status}")
+
+# --------------------------------------------------------------------------
+# PRIVATE MINIO HELPERS
+# --------------------------------------------------------------------------
+
+@lru_cache(maxsize=1)
+def _get_minio_client() -> Minio:
+    """
+    Initialize and return a MinIO client.
+    
+    PERFORMANCE NOTE: We create the client inside this helper rather than at 
+    the top-level module scope. This prevents the Airflow Scheduler from 
+    creating unnecessary connections every time it parses the DAG file.
+    """
+    return Minio(
+        MINIO_ENDPOINT, 
+        access_key=MINIO_ACCESS_KEY, 
+        secret_key=MINIO_SECRET_KEY, 
+        secure=False
+    )
 
 # --------------------------------------------------------------------------
 # DAG TASKS
 # --------------------------------------------------------------------------
 
-def list_pdf_files():
-    """List all .pdf files from MinIO."""
+def list_minio_buckets():
+    """List all available buckets from MinIO."""
     try:
-        client = Minio(MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=False)
-        objects = client.list_objects(BUCKET_NAME, recursive=True)
-        files = [obj.object_name for obj in objects if obj.object_name.lower().endswith('.pdf')]
-        logger.info(f"MinIO listed {len(files)} PDFs.")
-        return files
+        client = _get_minio_client()
+        buckets = client.list_buckets()
+        bucket_names = [b.name for b in buckets]
+        logger.info(f"Found buckets: {bucket_names}")
+        return bucket_names
     except Exception as e:
-        # If MinIO listing fails, we raise to let Airflow mark the task as failed.
-        # No file status changes needed here as we haven't reached the processing stage.
-        logger.error(f"MinIO listing failed: {e}")
+        logger.error(f"Failed to list MinIO buckets: {e}")
+        raise
+
+def list_pdf_files(ti):
+    """List all .pdf files from all discovered MinIO buckets."""
+    try:
+        buckets = ti.xcom_pull(task_ids="list_minio_buckets")
+        if not buckets:
+            logger.info("No buckets found to process.")
+            return []
+
+        client = _get_minio_client()
+        all_pdf_objects = [] # List of {"bucket": str, "filename": str}
+
+        for bucket in buckets:
+            logger.info(f"Scanning bucket: {bucket}")
+            objects = client.list_objects(bucket, recursive=True)
+            for obj in objects:
+                if obj.object_name.lower().endswith('.pdf'):
+                    all_pdf_objects.append({"bucket": bucket, "filename": obj.object_name})
+        
+        logger.info(f"Total PDFs found: {len(all_pdf_objects)}")
+        return all_pdf_objects
+    except Exception as e:
+        logger.error(f"MinIO PDF listing failed: {e}")
         raise
 
 def filter_new_pdf_files(ti):
     """
-    Filter files into a processing queue (New + Failed).
-    
-    SYSTEM RESILIENCE:
-    - New files are registered as 'pending' immediately after discovery.
-    - Failed files are automatically pulled back into the queue for the next run.
-    - 'processed' files are ignored, acting as a permanent cache.
+    Filter files into a processing queue (New + Failed) for all buckets.
     """
     try:
         all_pdfs = ti.xcom_pull(task_ids="list_pdf_files")
         if not all_pdfs: return []
 
         hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
+        queue = []
         
-        # 1. Handle New Files
-        seen = _get_seen_files(hook, BUCKET_NAME)
-        new = [f for f in all_pdfs if f not in seen]
-        if new: _register_new_files(hook, BUCKET_NAME, new)
+        # Group by bucket to minimize DB queries if needed, 
+        # but for simplicity we'll just process the discovery list.
+        buckets_in_discovery = set(item["bucket"] for item in all_pdfs)
         
-        # 2. Handle Retries
-        failed = _get_failed_files(hook, BUCKET_NAME)
+        for bucket in buckets_in_discovery:
+            # 1. Discovery in this bucket
+            files_in_this_bucket = [i["filename"] for i in all_pdfs if i["bucket"] == bucket]
+            seen = _get_seen_files(hook, bucket)
+            
+            # Register brand new files
+            new_files = [f for f in files_in_this_bucket if f not in seen]
+            if new_files:
+                _register_new_files(hook, bucket, new_files)
+            
+            # 2. Collect files that need processing (Pending/New + Failed)
+            failed = _get_failed_files(hook, bucket)
+            
+            # The queue contains items that are either:
+            # - Brand new (just registered as pending)
+            # - Previously registered but still 'pending' or marked as 'failed'
+            # We add them to the unified processing queue.
+            for file_name in set(new_files + failed):
+                queue.append({"bucket": bucket, "filename": file_name})
         
-        queue = list(set(new + failed))
-        logger.info(f"Queue: {len(new)} new, {len(failed)} retries. Total: {len(queue)}")
+        logger.info(f"Processing queue constructed with {len(queue)} items.")
         return queue
     except Exception as e:
         logger.error(f"Filtering logic failed: {e}")
@@ -121,11 +172,6 @@ def filter_new_pdf_files(ti):
 def send_minio_pdf_links(ti):
     """
     Process queue via Embedding API and update SQL registry.
-    
-    EXCEPTION HANDLING:
-    - Each file is processed in an isolated try-except block.
-    - If the API returns a non-200 or the request crashes, the status 
-      is updated to 'error' (failed) with the specific message for auditing.
     """
     queue = ti.xcom_pull(task_ids="filter_new_pdf_files")
     if not queue: 
@@ -134,19 +180,21 @@ def send_minio_pdf_links(ti):
 
     hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
     
-    for file_name in queue:
+    for item in queue:
+        bucket = item["bucket"]
+        file_name = item["filename"]
         try:
-            logger.info(f"Processing: {file_name}")
-            resp = requests.post(EMBEDDING_SERVICE_URL, json={"file_path": f"{BUCKET_NAME}/{file_name}"}, timeout=60)
+            logger.info(f"Submitting: [{bucket}] {file_name}")
+            # The API expects bucket/path format
+            payload = {"file_path": f"{bucket}/{file_name}"}
+            resp = requests.post(EMBEDDING_SERVICE_URL, json=payload, timeout=60)
             
             if resp.status_code == 200:
-                _update_file_status(hook, BUCKET_NAME, file_name, 'processed')
+                _update_file_status(hook, bucket, file_name, 'processed')
             else:
-                # Capture API errors (e.g. 500, 404) and update status to failed
-                _update_file_status(hook, BUCKET_NAME, file_name, 'failed', resp.text[:255])
+                _update_file_status(hook, bucket, file_name, 'failed', resp.text[:255])
         except Exception as e:
-            # Capture network crashes or logic errors and update status to failed
-            _update_file_status(hook, BUCKET_NAME, file_name, 'failed', f"Crash: {str(e)[:255]}")
+            _update_file_status(hook, bucket, file_name, 'failed', f"Crash: {str(e)[:255]}")
 
 # --------------------------------------------------------------------------
 # DAG DEFINITION
@@ -157,11 +205,12 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule="* * * * *",
     catchup=False,
-    tags=["minio", "embedding", "postgres", "refactored", "solid"],
+    tags=["minio", "embedding", "postgres", "multibucket"],
 ) as dag:
 
+    buckets_task = PythonOperator(task_id="list_minio_buckets", python_callable=list_minio_buckets)
     list_task = PythonOperator(task_id="list_pdf_files", python_callable=list_pdf_files)
     filter_task = PythonOperator(task_id="filter_new_pdf_files", python_callable=filter_new_pdf_files)
     send_task = PythonOperator(task_id="send_minio_pdf_links", python_callable=send_minio_pdf_links)
 
-    list_task >> filter_task >> send_task
+    buckets_task >> list_task >> filter_task >> send_task

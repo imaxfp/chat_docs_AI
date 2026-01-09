@@ -28,3 +28,7 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Ollama Data
+ollama-llm-embedding/data/
+ollama-llm-chat/data/

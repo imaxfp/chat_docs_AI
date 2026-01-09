@@ -264,6 +264,52 @@ services:
     ports:
       - "8003:8000"
 
+  # -----------------------------
+  # Ollama LLM Service
+  # -----------------------------
+  # Local LLM runner.
+  # Pulls and runs DeepSeek-R1 model.
+  # Exposes API on port 11434.
+  ollama-llm-embedding:
+    build:
+      context: ./ollama-llm-embedding
+    container_name: ollama-llm-embedding
+    restart: always
+    tty: true
+    environment:
+      - OLLAMA_MODEL=nomic-embed-text
+    volumes:
+      - ./ollama-llm-embedding/data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: [ "CMD-SHELL", "ollama list | grep -q $OLLAMA_MODEL" ]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+    networks:
+      - default
+
+  ollama-llm-chat:
+    build:
+      context: ./ollama-llm-chat
+    container_name: ollama-llm-chat
+    restart: always
+    tty: true
+    environment:
+      - OLLAMA_MODEL=tinyllama
+    volumes:
+      - ./ollama-llm-chat/data:/root/.ollama
+    ports:
+      - "11436:11434"
+    healthcheck:
+      test: [ "CMD-SHELL", "ollama list | grep -q $OLLAMA_MODEL" ]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+    networks:
+      - default
+
 # -----------------------------
 # Volumes
 # -----------------------------
