@@ -33,9 +33,9 @@ services:
       # UID for container processes
       AIRFLOW_UID: 50000
       # PostgreSQL database connection
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://airflow:airflow@postgres-airflow-db:5432/airflow'
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://airflow:airflow@pg-airflow-db:5432/airflow'
       # Connection to the PDF Application database
-      AIRFLOW_CONN_PDF_DB: 'postgresql://pdfuser:pdfpassword@postgres-pdf-text-metadata-db:5432/pdfdb'
+      AIRFLOW_CONN_PDF_DB: 'postgresql://pdfuser:pdfpassword@pg-typing-pdf-extractor-db:5432/pdfdb'
     # command to run when the container starts
     command: bash -c "airflow db migrate && airflow api-server"
     ports:
@@ -43,10 +43,10 @@ services:
     volumes:
       # Mount local folders for DAGs, logs
       - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./postgres-airflow-db:/opt/airflow/data # Only database files
+      - ./.logs:/opt/airflow/logs
+      - ./volumes/pg-airflow-db:/opt/airflow/data # Only database files
     depends_on:
-      postgres-airflow-db:
+      pg-airflow-db:
         condition: service_healthy
       airflow-scheduler:
         condition: service_started
@@ -75,10 +75,10 @@ services:
       # Shared secrets for internal JWT authentication between components
       AIRFLOW__CORE__INTERNAL_API_SECRET_KEY: 'RqzCPqKJi7MxJZPaRThQuWvXkeW4F_tHdFo8ELBq3rI='
       AIRFLOW__API_AUTH__JWT_SECRET: 'RqzCPqKJi7MxJZPaRThQuWvXkeW4F_tHdFo8ELBq3rI='
-      # PostgreSQL database location
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://airflow:airflow@postgres-airflow-db:5432/airflow'
+      # PostgreSQL database connection
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://airflow:airflow@pg-airflow-db:5432/airflow'
       # Connection to the PDF Application database
-      AIRFLOW_CONN_PDF_DB: 'postgresql://pdfuser:pdfpassword@postgres-pdf-text-metadata-db:5432/pdfdb'
+      AIRFLOW_CONN_PDF_DB: 'postgresql://pdfuser:pdfpassword@pg-typing-pdf-extractor-db:5432/pdfdb'
       # Authentication (Airflow 3 FAB)
       AIRFLOW__CORE__AUTH_MANAGER: 'airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager'
       AIRFLOW__FAB__AUTH_BACKENDS: 'airflow.providers.fab.auth_manager.api.auth.backend.session,airflow.providers.fab.auth_manager.api.auth.backend.basic_auth'
@@ -90,10 +90,10 @@ services:
       - "5678:5678"
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./postgres-airflow-db:/opt/airflow/data # Only database files
+      - ./.logs:/opt/airflow/logs
+      - ./volumes/pg-airflow-db:/opt/airflow/data # Only database files
     depends_on:
-      postgres-airflow-db:
+      pg-airflow-db:
         condition: service_healthy
       minio:
         condition: service_started
@@ -113,7 +113,7 @@ services:
       AIRFLOW__CORE__FERNET_KEY: 'q0xPBBjEFENFHslSCgZPb-XIT66kb27N36AtX7YNN94='
       AIRFLOW__CORE__INTERNAL_API_SECRET_KEY: 'RqzCPqKJi7MxJZPaRThQuWvXkeW4F_tHdFo8ELBq3rI='
       AIRFLOW__API_AUTH__JWT_SECRET: 'RqzCPqKJi7MxJZPaRThQuWvXkeW4F_tHdFo8ELBq3rI='
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://airflow:airflow@postgres-airflow-db:5432/airflow'
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: 'postgresql+psycopg2://airflow:airflow@pg-airflow-db:5432/airflow'
       # Connection to the PDF Application database
       AIRFLOW_CONN_PDF_DB: 'postgresql://pdfuser:pdfpassword@postgres-pdf-text-metadata-db:5432/pdfdb'
       AIRFLOW__CORE__AUTH_MANAGER: 'airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager'
@@ -122,10 +122,10 @@ services:
     command: dag-processor
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./postgres-airflow-db:/opt/airflow/data # Only database files
+      - ./.logs:/opt/airflow/logs
+      - ./volumes/pg-airflow-db:/opt/airflow/data # Only database files
     depends_on:
-      - postgres-airflow-db
+      - pg-airflow-db
       - airflow-scheduler
 
   # -----------------------------
@@ -133,9 +133,9 @@ services:
   # -----------------------------
   # Metadata database for Airflow (schedules, DAG runs, task instances, etc.)
   # Data is persisted in ./airflow-postgres-db/postgres volume
-  postgres-airflow-db:
+  pg-airflow-db:
     image: postgres:15
-    container_name: postgres-airflow-db
+    container_name: pg-airflow-db
     restart: always
     environment:
       #TODO: only for dev
@@ -145,7 +145,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres-airflow-db/postgres:/var/lib/postgresql/data
+      - ./volumes/pg-airflow-db:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "airflow" ]
       interval: 10s
@@ -170,14 +170,14 @@ services:
       - "9001:9001" # MinIO Console UI
     command: server /data --console-address ":9001"
     volumes:
-      - ./minio_data:/data # Persistent storage for objects
+      - ./volumes/minio-files-data:/data # Persistent storage for objects
 
   # -----------------------------
   # PDF Metadata & Extraction Database
   # -----------------------------
-  postgres-pdf-text-metadata-db:
+  pg-typing-pdf-extractor-db:
     image: postgres:15
-    container_name: postgres-pdf-text-metadata-db
+    container_name: pg-typing-pdf-extractor-db
     restart: always
     environment:
       POSTGRES_USER: pdfuser
@@ -186,8 +186,8 @@ services:
     ports:
       - "5433:5432" # Host port 5433 to avoid conflict with Airflow DB
     volumes:
-      - ./postgres-pdf-text-metadata-db:/var/lib/postgresql/data
-      - ./postgres-pdf-text-metadata-db-init-scripts:/docker-entrypoint-initdb.d
+      - ./volumes/pg-typing-pdf-extractor-service-db:/var/lib/postgresql/data
+      - ./scripts/typing-pdf-extractor-service-init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "pdfuser", "-d", "pdfdb" ]
       interval: 10s
@@ -198,26 +198,23 @@ services:
   # PDF MachineTyping Embedding Microservice
   # -----------------------------
   # Extracts MachineTyping text from PDF files in MinIO and generates embedding vectors.
-  extractor-typin-pdf-microservice:
+  typing-pdf-extractor-service:
     build:
-      context: ./extractor-typin-pdf-microservice
-    container_name: extractor-typin-pdf-microservice
+      context: ./services/typing-pdf-extractor-service
+    container_name: typing-pdf-extractor-service
     restart: always
     env_file:
-      - ./extractor-typin-pdf-microservice/.env.dev
+      - ./services/typing-pdf-extractor-service/.env.dev
     environment:
-      - DB_HOST=postgres-pdf-text-metadata-db
+      - DB_HOST=pg-typing-pdf-extractor-db
       - DB_NAME=pdfdb
       - DB_USER=pdfuser
       - DB_PASS=pdfpassword
-      - QDRANT_HOST=qdrant-pdf-vector-db
-      - QDRANT_PORT=6333
     volumes:
-      - ./extractor-typin-pdf-microservice:/app
+      - ./services/typing-pdf-extractor-service:/app
     depends_on:
       - minio
-      - postgres-pdf-text-metadata-db
-      - qdrant-pdf-vector-db
+      - pg-typing-pdf-extractor-db
     ports:
       - "8002:8000"
 
@@ -225,15 +222,15 @@ services:
   # Qdrant Vector Database
   # -----------------------------
   # Stores high-quality embedding vectors for semantic search.
-  qdrant-pdf-vector-db:
+  qdrant-vector-db:
     image: qdrant/qdrant:latest
-    container_name: qdrant-pdf-vector-db
+    container_name: qdrant-vector-db
     restart: always
     ports:
       - "6333:6333" # HTTP API
       - "6334:6334" # gRPC API
     volumes:
-      - ./qdrant-pdf-vector-db:/qdrant/storage
+      - ./volumes/qdrant-vector-db:/qdrant/storage
     healthcheck:
       test: [ "CMD", "bash", "-c", "</dev/tcp/127.0.0.1/6333" ]
       interval: 10s
@@ -241,28 +238,55 @@ services:
       retries: 5
 
   # -----------------------------
-  # PDF Text Searcher Microservice
+  # Chat Docs Microservice
   # -----------------------------
-  # Allows semantic search over processed PDF chunks.
-  text-searcher-microservice:
+  # Allows semantic search over processed PDF chunks and provides chat interface.
+  chat-docs-service:
     build:
-      context: ./text-searcher-microservice
-    container_name: text-searcher-microservice
+      context: ./services/chat-docs-service
+    container_name: chat-docs-service
     restart: always
     environment:
-      - DB_HOST=postgres-pdf-text-metadata-db
+      - DB_HOST=pg-typing-pdf-extractor-db
       - DB_NAME=pdfdb
       - DB_USER=pdfuser
       - DB_PASS=pdfpassword
-      - QDRANT_HOST=qdrant-pdf-vector-db
+      - QDRANT_HOST=qdrant-vector-db
       - QDRANT_PORT=6333
     volumes:
-      - ./text-searcher-microservice:/app
+      - ./services/chat-docs-service:/app
     depends_on:
-      - qdrant-pdf-vector-db
-      - postgres-pdf-text-metadata-db
+      - qdrant-vector-db
+      - pg-typing-pdf-extractor-db
     ports:
       - "8003:8000"
+
+  # -----------------------------
+  # PDF Embedding Microservice
+  # -----------------------------
+  # Fetches chunks from SQL, generates vectors via Ollama, and stores in Qdrant.
+  embedding-service:
+    build:
+      context: ./services/embedding-service
+    container_name: embedding-service
+    restart: always
+    environment:
+      - DB_HOST=pg-typing-pdf-extractor-db
+      - DB_NAME=pdfdb
+      - DB_USER=pdfuser
+      - DB_PASS=pdfpassword
+      - QDRANT_HOST=qdrant-vector-db
+      - QDRANT_PORT=6333
+      - OLLAMA_EMBEDDING_URL=http://ollama-llm-embedding:11434
+      - OLLAMA_MODEL=nomic-embed-text
+    volumes:
+      - ./services/embedding-service:/app
+    depends_on:
+      - pg-typing-pdf-extractor-db
+      - qdrant-vector-db
+      - ollama-llm-embedding
+    ports:
+      - "8005:8000"
 
   # -----------------------------
   # Ollama LLM Service
@@ -272,18 +296,18 @@ services:
   # Exposes API on port 11434.
   ollama-llm-embedding:
     build:
-      context: ./ollama-llm-embedding
+      context: ./llm_services/ollama-llm-embedding
     container_name: ollama-llm-embedding
     restart: always
     tty: true
     environment:
       - OLLAMA_MODEL=nomic-embed-text
     volumes:
-      - ./ollama-llm-embedding/data:/root/.ollama
+      - ./volumes/ollama-llm-embedding-data:/root/.ollama
     ports:
       - "11434:11434"
     healthcheck:
-      test: [ "CMD-SHELL", "ollama list | grep -q $OLLAMA_MODEL" ]
+      test: [ "CMD-SHELL", "ollama list | grep -q $$OLLAMA_MODEL" ]
       interval: 10s
       timeout: 5s
       retries: 60
@@ -292,18 +316,18 @@ services:
 
   ollama-llm-chat:
     build:
-      context: ./ollama-llm-chat
+      context: ./llm_services/ollama-llm-chat
     container_name: ollama-llm-chat
     restart: always
     tty: true
     environment:
       - OLLAMA_MODEL=tinyllama
     volumes:
-      - ./ollama-llm-chat/data:/root/.ollama
+      - ./volumes/ollama-llm-chat-data:/root/.ollama
     ports:
       - "11436:11434"
     healthcheck:
-      test: [ "CMD-SHELL", "ollama list | grep -q $OLLAMA_MODEL" ]
+      test: [ "CMD-SHELL", "ollama list | grep -q $$OLLAMA_MODEL" ]
       interval: 10s
       timeout: 5s
       retries: 60

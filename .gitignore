@@ -18,17 +18,9 @@ htmlcov/
 *.swo
 
 # Project Data & Logs
-minio_data/
-postgres-airflow-db/
-postgres-pdf-text-metadata-db/
-qdrant-pdf-vector-db/
-logs/
-*.log
+.logs/
+volumes/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Ollama Data
-ollama-llm-embedding/data/
-ollama-llm-chat/data/

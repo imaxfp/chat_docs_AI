@@ -1,11 +1,30 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Create ENUM for extraction status
+DO $$ BEGIN
+    CREATE TYPE extraction_status_enum AS ENUM ('pending', 'processing', 'success', 'failed');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Create ENUM for embedding status
+DO $$ BEGIN
+    CREATE TYPE embedding_status_enum AS ENUM ('new', 'in progress', 'done', 'failed');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 -- Base table for PDFs
 CREATE TABLE IF NOT EXISTS pdf (
     pdf_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     filename TEXT NOT NULL,
     bucket TEXT NOT NULL,
+    extraction_status extraction_status_enum DEFAULT 'pending',
+    error_message TEXT,
+    embedding_status embedding_status_enum DEFAULT 'new',
+    embedding_started_at TIMESTAMP WITH TIME ZONE,
+    embedding_completed_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(filename, bucket)
 );

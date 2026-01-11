@@ -1,7 +1,7 @@
 .venv
-postgres-airflow-db
+pg-airflow-db
 minio_data
-postgres-pdf-text-metadata-db
+pg-typing-pdf-extractor-db
 qdrant-pdf-vector-db
 logs
 pdf_examples

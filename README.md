@@ -2,6 +2,10 @@
 
 ***Transform your static PDF collection into a searchable, interactive knowledge base using Airflow and Vector Embeddings.***
 
+
+## TODO simple demo how it works
+
+
 ## 🚀 Getting Started
 
 Follow these simple steps to get your intelligent PDF pipeline up and running.
@@ -56,8 +60,13 @@ This project implements a complete **Retrieval-Augmented Generation (RAG)** pipe
 ### 🏗 Architecture At a Glance
 
 The system is composed of the Airflow ecosystem and two specialized microservices:
-1.  **Extraction Microservice**: Downloads PDFs from MinIO, extracts text/metadata, and saves to SQL+Vector DBs.
-2.  **Search Microservice**: Provides a high-level API for semantic search across the processed knowledge base.
+- **Extraction Microservice**: `./services/typing-pdf-extractor-service` (FastAPI)
+- **Chat Docs Microservice**: `./services/chat-docs-service` (FastAPI)
+- **Vector DB**: `qdrant-vector-db` (Qdrant)
+- **Metadata DB**: `pg-typing-pdf-extractor-db` (Postgres)
+- **Airflow DB**: `pg-airflow-db` (Postgres)
+- **Object Storage**: `minio` (MinIO)
+- **Embedding/LLM Chat**: Ollama services (`ollama-llm-embedding`, `ollama-llm-chat`)
 
 ---
 
@@ -129,6 +138,77 @@ The environment is pre-configured for remote debugging using `debugpy`.
     ```bash
     docker exec -it -e AIRFLOW_DEBUG=true airflow-scheduler airflow tasks test <dag_id> <task_id> 2026-01-01
     ```
+
+## Project structure and project organization
+📌 Key references / standards behind it
+
+12-Factor App
+
+Each service is self-contained, with its own dependencies and config.
+
+Dockerfile per service follows this principle.
+
+https://12factor.net/
+
+Docker & Container Best Practices
+
+Each image builds from its service folder.
+
+Avoids coupling multiple services in one Dockerfile.
+
+https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+
+Microservice Architecture Patterns (Sam Newman, Martin Fowler)
+
+Each microservice should be independently deployable.
+
+Clear separation from orchestrators (like Airflow).
+
+https://martinfowler.com/articles/microservices.html
+
+Monorepo / Multi-repo Guidelines
+
+Organize by service folder for maintainability and CI/CD.
+
+Root-level DAGs remain isolated.
+
+project-root/
+│
+├── dags/                     # Airflow DAGs
+│
+├── services/                 # Standard microservices
+│   ├── user-service/
+│   ├── order-service/
+│   └── billing-service/
+│
+├── llm-services/             # All Ollama LLM services
+│   ├── llm-model-1/
+│   │   ├── Dockerfile
+│   │   ├── model/            # Optional mounted model files
+│   │   └── README.md
+│   │
+│   ├── llm-model-2/
+│   ├── llm-model-3/
+│   ├── llm-model-4/
+│   └── llm-model-5/
+│
+├── shared/                   # Optional shared libraries / utils
+│
+├── volumes/                  # Mounted volumes for DBs, data, models
+│   ├── user-service-db/
+│   ├── order-service-db/
+│   ├── shared-data/
+│   └── llm-models/           # Could have subfolders for each model
+│       ├── llm-model-1/
+│       ├── llm-model-2/
+│       └── llm-model-3/
+│
+├── docker-compose.yml         # Local dev orchestration
+├── README.md
+└── pyproject.toml / requirements.txt
+
+
+
 
 ---
 
