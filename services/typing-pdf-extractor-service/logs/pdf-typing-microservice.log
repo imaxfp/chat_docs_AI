@@ -2805,3 +2805,9 @@ fitz.FileDataError: cannot open broken document
 2026-01-11 16:42:26,521 - persistence-service - INFO - Persisting metadata and chunks for PDF e7e1e6b2-f9bf-49bd-b5e2-0aa01c6e0828...
 2026-01-11 16:42:26,545 - persistence-service - INFO - Successfully persisted metadata and 79 chunks for PDF e7e1e6b2-f9bf-49bd-b5e2-0aa01c6e0828.
 2026-01-11 16:42:26,545 - persistence-service - INFO - Updating extraction status for e7e1e6b2-f9bf-49bd-b5e2-0aa01c6e0828 to 'success'...
+2026-01-11 16:58:18,833 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 17:59:43,677 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:03:44,651 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:06:34,983 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:14:03,066 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:37:46,583 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000

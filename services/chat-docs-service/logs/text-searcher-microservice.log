@@ -349,3 +349,268 @@ HINT:  No operator matches the given name and argument types. You might need to 
 2026-01-11 16:42:04,938 - search-service - INFO - Initializing Embedding Model (SentenceTransformer)...
 2026-01-11 16:42:07,513 - search-service - INFO - Initializing Qdrant client at qdrant-vector-db:6333
 2026-01-11 16:42:07,528 - text-searcher-api - INFO - Service initialized successfully.
+2026-01-11 16:57:24,504 - search-service - INFO - Searching for: 'входные и выходные кабели сварочного аппарата' (limit: 5)
+2026-01-11 16:57:24,631 - search-service - ERROR - Search failed: Unexpected Response: 400 (Bad Request)
+Raw response content:
+b'{"status":{"error":"Wrong input: Not existing vector name error: "},"time":0.002452375}'
+2026-01-11 16:57:24,633 - text-searcher-api - ERROR - API Error during search: Search operation failed: Unexpected Response: 400 (Bad Request)
+Raw response content:
+b'{"status":{"error":"Wrong input: Not existing vector name error: "},"time":0.002452375}'
+2026-01-11 16:57:55,690 - text-searcher-api - INFO - Shutting down Text Searcher Microservice...
+2026-01-11 16:58:18,859 - text-searcher-api - INFO - Starting Text Searcher Microservice...
+2026-01-11 16:58:18,860 - search-service - INFO - Initializing LLM Client for embeddings...
+2026-01-11 16:58:18,863 - search-service - INFO - Initializing Qdrant client at qdrant-vector-db:6333
+2026-01-11 16:58:18,886 - text-searcher-api - INFO - Service initialized successfully.
+2026-01-11 16:58:54,622 - text-searcher-api - INFO - Triggering semantic search for query: входные и выходные кабели сварочного аппарата
+2026-01-11 16:58:54,624 - search-service - INFO - Searching for: 'входные и выходные кабели сварочного аппарата' (limit: 5)
+2026-01-11 16:58:54,625 - llm-client - INFO - Fetching embedding from http://ollama-llm-embedding:11434/api/embeddings for model nomic-embed-text
+2026-01-11 16:58:54,796 - search-service - INFO - Targeting chunk IDs: ['5b188175-b076-4c62-8865-c0b2370d7ce4', '7b3c941a-fcea-4651-8d07-e9407df9d8d5', '3d7afced-2d44-4c6b-851c-9725fd032726', '0b0ca521-b0df-4f61-87c2-6af3f2cfcfba', '95e04013-1680-4b5f-a618-9a9d94542c38']
+2026-01-11 16:58:54,797 - search-service - INFO - Fetching full text and metadata for 5 chunks from Postgres...
+2026-01-11 16:58:54,834 - search-service - INFO - Postgres returned 5 records for 5 searched IDs.
+2026-01-11 16:58:54,834 - search-service - INFO - Found 5 matches for query.
+2026-01-11 17:59:22,513 - text-searcher-api - INFO - Shutting down Text Searcher Microservice...
+2026-01-11 17:59:44,187 - text-searcher-api - INFO - Starting Text Searcher Microservice...
+2026-01-11 17:59:44,190 - search-service - INFO - Initializing LLM Client for embeddings...
+2026-01-11 17:59:44,193 - search-service - INFO - Initializing Qdrant client at qdrant-vector-db:6333
+2026-01-11 17:59:44,216 - text-searcher-api - INFO - Services initialized successfully.
+2026-01-11 18:03:30,725 - text-searcher-api - INFO - Shutting down Text Searcher Microservice...
+2026-01-11 18:03:45,455 - text-searcher-api - INFO - Starting Text Searcher Microservice...
+2026-01-11 18:03:45,456 - search-service - INFO - Initializing LLM Client for embeddings...
+2026-01-11 18:03:45,458 - search-service - INFO - Initializing Qdrant client at qdrant-vector-db:6333
+2026-01-11 18:03:45,479 - text-searcher-api - INFO - Services initialized successfully.
+2026-01-11 18:06:20,482 - text-searcher-api - INFO - Shutting down Text Searcher Microservice...
+2026-01-11 18:06:35,423 - text-searcher-api - INFO - Starting Text Searcher Microservice...
+2026-01-11 18:06:35,423 - search-service - INFO - Initializing LLM Client for embeddings...
+2026-01-11 18:06:35,423 - search-service - INFO - Initializing Qdrant client at qdrant-vector-db:6333
+2026-01-11 18:06:35,450 - text-searcher-api - INFO - Services initialized successfully.
+2026-01-11 18:07:52,075 - text-searcher-api - INFO - Step 1: Refining search query for: хочу знать как подключение входных и выходных кабелей работает
+2026-01-11 18:07:52,078 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:08:05,272 - text-searcher-api - INFO - Refined search query: Как подключение входных и выходных кабелей работает:
+
+1. Во входном кабеле добавьте проволоку (тюлень, крышка) или гильзы для зачистки и распыления пакета подключаемого кабеля.
+2. Конечное устройство (предварительно выбрать) должно иметь специальный конфигурационный провод, который должен быть подключен к одному из входных кабелей и от него поставлен на вход устройства.
+3. Устройство должно иметь определённое сочетание кабельных вход/выход для того, чтобы последовательно пройтись по всем входным и выхоdf кабелям.
+4. Для подключения к каблю нужны конфигурационные проволы (тюлень, гильзы) или же добавьте конфигурационный проволку к каблю.
+5. Убедиться, что входной и выхоdf кабели соответствуют конфигруцированному устройству.
+6. Задайте максимальную скорость передачи данных и накопления последовательностей для правильной работы устройства.
+7. Тестировать подключение вход-выход кабелей с помощью примера, показанного в видеозаписи или протокола с профилем вход-выход кабелей.
+8. В случае необходимости, проверьте размер и наличие потерь кабелей и вывода кабелей.
+9. Обновите устройство для получения новой конфигурации кабелей вход-выход.
+10. Накопление повторно прочесть каблю до подключение вход-выход кабелей, накопить соответствующую последовательность данных (если необходимо).
+2026-01-11 18:08:05,273 - text-searcher-api - INFO - Step 2/3: Searching Qdrant and fetching context for: Как подключение входных и выходных кабелей работает:
+
+1. Во входном кабеле добавьте проволоку (тюлень, крышка) или гильзы для зачистки и распыления пакета подключаемого кабеля.
+2. Конечное устройство (предварительно выбрать) должно иметь специальный конфигурационный провод, который должен быть подключен к одному из входных кабелей и от него поставлен на вход устройства.
+3. Устройство должно иметь определённое сочетание кабельных вход/выход для того, чтобы последовательно пройтись по всем входным и выхоdf кабелям.
+4. Для подключения к каблю нужны конфигурационные проволы (тюлень, гильзы) или же добавьте конфигурационный проволку к каблю.
+5. Убедиться, что входной и выхоdf кабели соответствуют конфигруцированному устройству.
+6. Задайте максимальную скорость передачи данных и накопления последовательностей для правильной работы устройства.
+7. Тестировать подключение вход-выход кабелей с помощью примера, показанного в видеозаписи или протокола с профилем вход-выход кабелей.
+8. В случае необходимости, проверьте размер и наличие потерь кабелей и вывода кабелей.
+9. Обновите устройство для получения новой конфигурации кабелей вход-выход.
+10. Накопление повторно прочесть каблю до подключение вход-выход кабелей, накопить соответствующую последовательность данных (если необходимо).
+2026-01-11 18:08:05,274 - search-service - INFO - Searching for: 'Как подключение входных и выходных кабелей работает:
+
+1. Во входном кабеле добавьте проволоку (тюлень, крышка) или гильзы для зачистки и распыления пакета подключаемого кабеля.
+2. Конечное устройство (предварительно выбрать) должно иметь специальный конфигурационный провод, который должен быть подключен к одному из входных кабелей и от него поставлен на вход устройства.
+3. Устройство должно иметь определённое сочетание кабельных вход/выход для того, чтобы последовательно пройтись по всем входным и выхоdf кабелям.
+4. Для подключения к каблю нужны конфигурационные проволы (тюлень, гильзы) или же добавьте конфигурационный проволку к каблю.
+5. Убедиться, что входной и выхоdf кабели соответствуют конфигруцированному устройству.
+6. Задайте максимальную скорость передачи данных и накопления последовательностей для правильной работы устройства.
+7. Тестировать подключение вход-выход кабелей с помощью примера, показанного в видеозаписи или протокола с профилем вход-выход кабелей.
+8. В случае необходимости, проверьте размер и наличие потерь кабелей и вывода кабелей.
+9. Обновите устройство для получения новой конфигурации кабелей вход-выход.
+10. Накопление повторно прочесть каблю до подключение вход-выход кабелей, накопить соответствующую последовательность данных (если необходимо).' (limit: 5)
+2026-01-11 18:08:05,274 - llm-client - INFO - Fetching embedding from http://ollama-llm-embedding:11434/api/embeddings for model nomic-embed-text
+2026-01-11 18:08:06,397 - search-service - INFO - Targeting chunk IDs: ['5b188175-b076-4c62-8865-c0b2370d7ce4', 'eb88c9d9-b8d4-48e0-b8e8-d841186b396e', '8d1b8d9a-adb5-45b9-80d6-34abe50d3720', '172b9c25-e279-4ad5-a85a-32a05aaed645', 'e0ac9136-52c1-4727-b7bb-2eb6f21b8c1d']
+2026-01-11 18:08:06,397 - search-service - INFO - Fetching full text and metadata for 5 chunks from Postgres...
+2026-01-11 18:08:06,451 - search-service - INFO - Postgres returned 5 records for 5 searched IDs.
+2026-01-11 18:08:06,452 - search-service - INFO - Found 5 matches for query.
+2026-01-11 18:08:06,452 - text-searcher-api - INFO - Retrieved 5 relevant chunks.
+2026-01-11 18:08:06,452 - text-searcher-api - INFO - Step 4: Refining explanation intent for: хочу знать как подключение входных и выходных кабелей работает
+2026-01-11 18:08:06,453 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:08:11,895 - text-searcher-api - INFO - Explanation intent: Unfortunately, this information is not provided in the given text. However, we can provide some general steps that might help you understand how to connect input and output cables:
+
+1. Make sure the cables are plugged into the correct sockets or outlets on your device. 2. Check the voltage rating of the cable and make sure it matches the requirements for your device. For instance, some laptops require a 9-volt battery cable, while others need a 12-volt cable. 3. If you're using an AC adapter to power your device, make sure it's plugged into a voltage regulator that can handle the maximum rating of the cable. 4. Check the documentation provided with the device or accessories for instructions on how to connect the cables properly. If there are no specific instructions, it's usually best to consult the user manual or contact customer support for guidance.
+2026-01-11 18:08:11,896 - text-searcher-api - INFO - Step 5: Constructing context and generating final response...
+2026-01-11 18:08:11,896 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:08:35,455 - text-searcher-api - INFO - Step 6: Final answer generated.
+2026-01-11 18:13:48,395 - text-searcher-api - INFO - Shutting down Text Searcher Microservice...
+2026-01-11 18:14:04,328 - text-searcher-api - INFO - Starting Text Searcher Microservice...
+2026-01-11 18:14:04,328 - search-service - INFO - Initializing LLM Client for embeddings...
+2026-01-11 18:14:04,328 - search-service - INFO - Initializing Qdrant client at qdrant-vector-db:6333
+2026-01-11 18:14:04,349 - text-searcher-api - INFO - Services initialized successfully.
+2026-01-11 18:15:01,962 - text-searcher-api - INFO - Step 1: Refining search query for: как работает подключение входных и выходных кабелей
+2026-01-11 18:15:01,964 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:15:10,920 - text-searcher-api - INFO - Refined search query: Подключение входа/выхода кабелей происходит путём устанавливания проводов (cables) в отдельные сети или внутри сети. Эти проводы содержат контакты и провода (conductors and wires), которые соединены между собой в сетях для подключения оборудования к сетим.
+
+При работе устройств, зависимых от сети, эти проводы должны быть защищены от попадания пожарных материалов и не давать никакого контакта с жидкостью. Этот процесс называется подключением сети или подключением сети к сети.
+
+В некоторых случаях входные кабели имеют свои контакты, которые могут быть использованы для запуска и нажатия на устройства с помощью специальных приемок. В этом случае они называются «подключаемых кабелей» или «контакты».
+
+В других случаях выходные кабели имеют свои контакты, которые также могут использоваться для запуска и нажатия на устройства с помощью специальных приемок. В этом случае они называются «выходными кабелями» или «контактными».
+
+При подключении входовых кабелей (входных кабелей) выполняется это процесс, а при подключении выходных кабелей - это процесс.
+2026-01-11 18:15:10,921 - text-searcher-api - INFO - Step 2/3: Searching Qdrant and fetching context for: Подключение входа/выхода кабелей происходит путём устанавливания проводов (cables) в отдельные сети или внутри сети. Эти проводы содержат контакты и провода (conductors and wires), которые соединены между собой в сетях для подключения оборудования к сетим.
+
+При работе устройств, зависимых от сети, эти проводы должны быть защищены от попадания пожарных материалов и не давать никакого контакта с жидкостью. Этот процесс называется подключением сети или подключением сети к сети.
+
+В некоторых случаях входные кабели имеют свои контакты, которые могут быть использованы для запуска и нажатия на устройства с помощью специальных приемок. В этом случае они называются «подключаемых кабелей» или «контакты».
+
+В других случаях выходные кабели имеют свои контакты, которые также могут использоваться для запуска и нажатия на устройства с помощью специальных приемок. В этом случае они называются «выходными кабелями» или «контактными».
+
+При подключении входовых кабелей (входных кабелей) выполняется это процесс, а при подключении выходных кабелей - это процесс.
+2026-01-11 18:15:10,922 - search-service - INFO - Searching for: 'Подключение входа/выхода кабелей происходит путём устанавливания проводов (cables) в отдельные сети или внутри сети. Эти проводы содержат контакты и провода (conductors and wires), которые соединены между собой в сетях для подключения оборудования к сетим.
+
+При работе устройств, зависимых от сети, эти проводы должны быть защищены от попадания пожарных материалов и не давать никакого контакта с жидкостью. Этот процесс называется подключением сети или подключением сети к сети.
+
+В некоторых случаях входные кабели имеют свои контакты, которые могут быть использованы для запуска и нажатия на устройства с помощью специальных приемок. В этом случае они называются «подключаемых кабелей» или «контакты».
+
+В других случаях выходные кабели имеют свои контакты, которые также могут использоваться для запуска и нажатия на устройства с помощью специальных приемок. В этом случае они называются «выходными кабелями» или «контактными».
+
+При подключении входовых кабелей (входных кабелей) выполняется это процесс, а при подключении выходных кабелей - это процесс.' (limit: 5)
+2026-01-11 18:15:10,922 - llm-client - INFO - Fetching embedding from http://ollama-llm-embedding:11434/api/embeddings for model nomic-embed-text
+2026-01-11 18:15:11,769 - search-service - INFO - Targeting chunk IDs: ['eb88c9d9-b8d4-48e0-b8e8-d841186b396e', '5b188175-b076-4c62-8865-c0b2370d7ce4', '172b9c25-e279-4ad5-a85a-32a05aaed645', 'c1d55060-12eb-43ab-885b-697c024ef573', '018a089f-1f6a-4d3b-94bb-0ff65a5be832']
+2026-01-11 18:15:11,770 - search-service - INFO - Fetching full text and metadata for 5 chunks from Postgres...
+2026-01-11 18:15:11,808 - search-service - INFO - Postgres returned 5 records for 5 searched IDs.
+2026-01-11 18:15:11,809 - search-service - INFO - Found 5 matches for query.
+2026-01-11 18:15:11,809 - text-searcher-api - INFO - Retrieved 5 relevant chunks.
+2026-01-11 18:15:11,809 - text-searcher-api - INFO - Step 4: Refining explanation intent for: как работает подключение входных и выходных кабелей
+2026-01-11 18:15:11,810 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:15:20,300 - text-searcher-api - INFO - Explanation intent: Подключение входа и выходных кабелей происходит за счет проводов, установленных в сети для протокола Ethernet (100 Мбит). Если кабель Ethernet состоит только из одного пута или провода, то он не требует подключения к коммутационной схеме. Однако если кабель имеет два или более путей и входное и выходное устройства (например, аппаратные устройства) соединены между собой, то необходимо подключить по одному катушечному каналу для каждого пути. На этом этапе подключение проводов происходит в соответствии с протоколом Ethernet и определенными заранее предварительно написанными правилами.
+
+Подключение кабеля производится в режиме 802.3, или "10BASE-T" (длинные пути - 10 Мбит). В этом случае кабель Ethernet должен быть помещен в специальную машину "кабелики", которая имеет натуральный привод и позволяет осуществлять подключение двух проводов в размере 100 мм. После подключения кабелей нужно повторить процесс установить кабель Ethernet между устройствами.
+
+Протокол Ethernet используется для установления сети с расширенным аппаратным ресурсом, а также для связи двух или более компьютеров в распределенной системе с использованием одного и того же профиля Интернета.
+
+Ссылки: 
+- IEEE 802.3 - Ethernet (10BASE-T) Specification
+- Networking: Understanding and Using LAN/WAN (Ethernet) Products
+2026-01-11 18:15:20,300 - text-searcher-api - INFO - Step 5: Constructing context and generating final response...
+2026-01-11 18:15:20,301 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:15:44,456 - text-searcher-api - INFO - Step 6: Final answer generated.
+2026-01-11 18:17:00,403 - text-searcher-api - INFO - Step 1: Refining search query for: как работает подключение входных и выходных кабелей
+2026-01-11 18:17:00,405 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:17:13,684 - text-searcher-api - INFO - Refined search query: Связь между двумя компьютерами, называемая подключённостью, осуществляется посредством линии (например, провода) или сети Ethernet. Взаимная подключенность состоит в отправке данных (таких как сообщения, пакеты, файлы) между компьютерами через кабель связи.
+
+При подключении компьютеры к сети Ethernet необходимо установить сетевой cable (кабель), разворачивать провода (подкова) и выбрасывать их в одну или несколько разных локальных групп. Взаимная подключенность происходит, когда компьютер 1 подходит к компьютеру 2 и отправляет сообщение (пакет), который затем переходит через кабель связи на пути к компьютеру 3.
+
+Связь между компьютерами Ethernet обеспечивает скорость передачи данных до десятков мс, что позволяет использовать в программах языка C и C++ для работы с базами данных или системы управления.
+
+При подключении компьютеры к сети Ethernet (например, LAN) необходимо установить коммутатор (коммутатор LAN). Компьютер 1 подходит к компьютеру 2 и выбрасывает с помощью кабеля связи пакет, который переходит через коммутатор в локальную группу (каждой локальной группы может быть несколько компьютеров), на которые отправляет пакет. Пакет поступает на устройство LAN, на котором распространяется (распространяется) и направляется к компьютеру 3 (у которого находится операционная система).
+
+Когда компьютер 1 принимает пакет из локальной группы, он смотрит, что кабель связь используется для данного компьютера. Если он замечает, что пакет передавался этим же компьютером в ходе предыдущей попытки, то он отправляет ему сообщение (пакет) с аналогичной инструкцией: "Получено нажатие кнопки 'нажимать'", где "нажимать" обозначает что-то, подходящее для этого конкретного компьютера.
+2026-01-11 18:17:13,686 - text-searcher-api - INFO - Step 2/3: Searching Qdrant and fetching context for: Связь между двумя компьютерами, называемая подключённостью, осуществляется посредством линии (например, провода) или сети Ethernet. Взаимная подключенность состоит в отправке данных (таких как сообщения, пакеты, файлы) между компьютерами через кабель связи.
+
+При подключении компьютеры к сети Ethernet необходимо установить сетевой cable (кабель), разворачивать провода (подкова) и выбрасывать их в одну или несколько разных локальных групп. Взаимная подключенность происходит, когда компьютер 1 подходит к компьютеру 2 и отправляет сообщение (пакет), который затем переходит через кабель связи на пути к компьютеру 3.
+
+Связь между компьютерами Ethernet обеспечивает скорость передачи данных до десятков мс, что позволяет использовать в программах языка C и C++ для работы с базами данных или системы управления.
+
+При подключении компьютеры к сети Ethernet (например, LAN) необходимо установить коммутатор (коммутатор LAN). Компьютер 1 подходит к компьютеру 2 и выбрасывает с помощью кабеля связи пакет, который переходит через коммутатор в локальную группу (каждой локальной группы может быть несколько компьютеров), на которые отправляет пакет. Пакет поступает на устройство LAN, на котором распространяется (распространяется) и направляется к компьютеру 3 (у которого находится операционная система).
+
+Когда компьютер 1 принимает пакет из локальной группы, он смотрит, что кабель связь используется для данного компьютера. Если он замечает, что пакет передавался этим же компьютером в ходе предыдущей попытки, то он отправляет ему сообщение (пакет) с аналогичной инструкцией: "Получено нажатие кнопки 'нажимать'", где "нажимать" обозначает что-то, подходящее для этого конкретного компьютера.
+2026-01-11 18:17:13,686 - search-service - INFO - Searching for: 'Связь между двумя компьютерами, называемая подключённостью, осуществляется посредством линии (например, провода) или сети Ethernet. Взаимная подключенность состоит в отправке данных (таких как сообщения, пакеты, файлы) между компьютерами через кабель связи.
+
+При подключении компьютеры к сети Ethernet необходимо установить сетевой cable (кабель), разворачивать провода (подкова) и выбрасывать их в одну или несколько разных локальных групп. Взаимная подключенность происходит, когда компьютер 1 подходит к компьютеру 2 и отправляет сообщение (пакет), который затем переходит через кабель связи на пути к компьютеру 3.
+
+Связь между компьютерами Ethernet обеспечивает скорость передачи данных до десятков мс, что позволяет использовать в программах языка C и C++ для работы с базами данных или системы управления.
+
+При подключении компьютеры к сети Ethernet (например, LAN) необходимо установить коммутатор (коммутатор LAN). Компьютер 1 подходит к компьютеру 2 и выбрасывает с помощью кабеля связи пакет, который переходит через коммутатор в локальную группу (каждой локальной группы может быть несколько компьютеров), на которые отправляет пакет. Пакет поступает на устройство LAN, на котором распространяется (распространяется) и направляется к компьютеру 3 (у которого находится операционная система).
+
+Когда компьютер 1 принимает пакет из локальной группы, он смотрит, что кабель связь используется для данного компьютера. Если он замечает, что пакет передавался этим же компьютером в ходе предыдущей попытки, то он отправляет ему сообщение (пакет) с аналогичной инструкцией: "Получено нажатие кнопки 'нажимать'", где "нажимать" обозначает что-то, подходящее для этого конкретного компьютера.' (limit: 5)
+2026-01-11 18:17:13,687 - llm-client - INFO - Fetching embedding from http://ollama-llm-embedding:11434/api/embeddings for model nomic-embed-text
+2026-01-11 18:17:15,481 - search-service - INFO - Targeting chunk IDs: ['5b188175-b076-4c62-8865-c0b2370d7ce4', '7766eff0-2e75-4bc5-b9cf-c9e34c61b0f5', 'f56c5dd4-8a19-4045-8cb2-c2c095ab9f10', '95e04013-1680-4b5f-a618-9a9d94542c38', '8d1b8d9a-adb5-45b9-80d6-34abe50d3720']
+2026-01-11 18:17:15,482 - search-service - INFO - Fetching full text and metadata for 5 chunks from Postgres...
+2026-01-11 18:17:15,493 - search-service - INFO - Postgres returned 5 records for 5 searched IDs.
+2026-01-11 18:17:15,494 - search-service - INFO - Found 5 matches for query.
+2026-01-11 18:17:15,494 - text-searcher-api - INFO - Retrieved 5 relevant chunks.
+2026-01-11 18:17:15,494 - text-searcher-api - INFO - Step 4: Refining explanation intent for: как работает подключение входных и выходных кабелей
+2026-01-11 18:17:15,494 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:17:22,035 - text-searcher-api - INFO - Explanation intent: Sure! The process of connecting in- and output cables is called "cable connection" or "termination". Here's a step-by-step guide:
+
+1. Before you start cable connection, make sure that both cords are properly inserted into the appropriate sockets on your device (e.g., modem, router, etc.). Ensure that each cord matches the colors and branding of the corresponding socket.
+
+2. Once all cables have been connected, turn off your device(s) to prevent any electrical interference.
+
+3. Reverse the polarity on the cable if it is not already inverted. For example, if the data (red) wire on one end of the cable is red and the ground (black) wire on the other end is black, reverse them.
+
+4. Tighten the connector at both ends, making sure it is securely connected but not overtightened.
+
+5. Once all cables are connected, turn your device(s) back on to ensure that everything works correctly.
+
+6. After you're satisfied with your cable connections, unplug each cord and its corresponding socket. This will help prevent any damage or short circuits while ensuring a good connection.
+
+By following these steps, you can safely connect cables in your device and ensure that they are functioning correctly.
+2026-01-11 18:17:22,035 - text-searcher-api - INFO - Step 5: Constructing context and generating final response...
+2026-01-11 18:17:22,036 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:17:45,865 - text-searcher-api - INFO - Step 6: Final answer generated.
+2026-01-11 18:17:45,867 - text-searcher-api - INFO - Debug mode enabled. Including sources and intermediate steps in response.
+2026-01-11 18:37:27,218 - text-searcher-api - INFO - Shutting down Text Searcher Microservice...
+2026-01-11 18:37:47,696 - text-searcher-api - INFO - Starting Text Searcher Microservice...
+2026-01-11 18:37:47,697 - search-service - INFO - Initializing LLM Client for embeddings...
+2026-01-11 18:37:47,697 - search-service - INFO - Initializing Qdrant client at qdrant-vector-db:6333
+2026-01-11 18:37:47,717 - text-searcher-api - INFO - Services initialized successfully.
+2026-01-11 18:38:27,590 - text-searcher-api - INFO - Step 1: Refining search query for: как работает подключение входных и выходных кабелей
+2026-01-11 18:38:27,591 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:38:39,745 - text-searcher-api - INFO - Refined search query: Подключение входящих и выходиющих кабелей осуществляется по следующим процессам:
+
+1. Установка кабеля входа на сеть:
+- подключаемся к сети, распределиваемой кабелем и вводим входные кабельные контакты (винилки) и проводники, отправляемые с рейлака.
+- зажигаем светодиоды на ноль и включем электричество к кабелю.
+- если светодиоды не устали, то начинаем зажигать светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+
+2. Установка кабеля выхода на устройство:
+- подключаемся к устройству и выбираем нужный путь к кабелю.
+- зажигаем светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+- если светодиоды не устали, то начинаем зажигать светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+
+3. Проверка подключения кабелей на устройстве:
+- если светодиоды не устали, проходят проверки и смогут быть зажигаться. Если свет отключен, вызываем ошибку: "Проверьте проводники".
+2026-01-11 18:38:39,746 - text-searcher-api - INFO - Step 2/3: Searching Qdrant and fetching context for: Подключение входящих и выходиющих кабелей осуществляется по следующим процессам:
+
+1. Установка кабеля входа на сеть:
+- подключаемся к сети, распределиваемой кабелем и вводим входные кабельные контакты (винилки) и проводники, отправляемые с рейлака.
+- зажигаем светодиоды на ноль и включем электричество к кабелю.
+- если светодиоды не устали, то начинаем зажигать светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+
+2. Установка кабеля выхода на устройство:
+- подключаемся к устройству и выбираем нужный путь к кабелю.
+- зажигаем светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+- если светодиоды не устали, то начинаем зажигать светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+
+3. Проверка подключения кабелей на устройстве:
+- если светодиоды не устали, проходят проверки и смогут быть зажигаться. Если свет отключен, вызываем ошибку: "Проверьте проводники".
+2026-01-11 18:38:39,747 - search-service - INFO - Searching for: 'Подключение входящих и выходиющих кабелей осуществляется по следующим процессам:
+
+1. Установка кабеля входа на сеть:
+- подключаемся к сети, распределиваемой кабелем и вводим входные кабельные контакты (винилки) и проводники, отправляемые с рейлака.
+- зажигаем светодиоды на ноль и включем электричество к кабелю.
+- если светодиоды не устали, то начинаем зажигать светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+
+2. Установка кабеля выхода на устройство:
+- подключаемся к устройству и выбираем нужный путь к кабелю.
+- зажигаем светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+- если светодиоды не устали, то начинаем зажигать светодиоды в порядке установки (начиная с нуля и далее вниз). Если свет отключен, вызываем ошибку: "Проверьте проводники".
+
+3. Проверка подключения кабелей на устройстве:
+- если светодиоды не устали, проходят проверки и смогут быть зажигаться. Если свет отключен, вызываем ошибку: "Проверьте проводники".' (limit: 5)
+2026-01-11 18:38:39,747 - llm-client - INFO - Fetching embedding from http://ollama-llm-embedding:11434/api/embeddings for model nomic-embed-text
+2026-01-11 18:38:40,712 - search-service - INFO - Targeting chunk IDs: ['c1d55060-12eb-43ab-885b-697c024ef573', '172b9c25-e279-4ad5-a85a-32a05aaed645', '0817f17d-cea5-4fc6-9502-fc466c28243a', '5b188175-b076-4c62-8865-c0b2370d7ce4', '8bd1a7e7-d035-4816-876a-2a33e7d62a38']
+2026-01-11 18:38:40,712 - search-service - INFO - Fetching full text and metadata for 5 chunks from Postgres...
+2026-01-11 18:38:40,900 - search-service - INFO - Postgres returned 5 records for 5 searched IDs.
+2026-01-11 18:38:40,901 - search-service - INFO - Found 5 matches for query.
+2026-01-11 18:38:40,902 - text-searcher-api - INFO - Retrieved 5 relevant chunks.
+2026-01-11 18:38:40,902 - text-searcher-api - INFO - Step 4: Refining explanation intent for: как работает подключение входных и выходных кабелей
+2026-01-11 18:38:40,903 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:38:48,641 - text-searcher-api - INFO - Explanation intent: Certainly! The connection between inputs and outputs (aka cables) is a fundamental part of many electronic devices and systems. In general, the following steps are involved in the process:
+
+1. Identify Inputs: After connecting power and ground wires to your device, you will need to identify any input cables or connectors. These can be found on components such as buttons, switches, or touchscreens.
+
+2. Connect Inputs: Once you have identified the inputs, you'll want to connect them to the appropriate output(s). For instance, a button might be connected to an LED or toggle switch, while a potentiometer (for volume control) will need to be attached to an input that provides a voltage signal.
+
+3. Connect Outputs: The final step is to connect any outputs to the appropriate inputs. This can involve soldering wires into place, or using screw terminals on certain components.
+
+In general, connecting cables can be tricky and requires specific tools, such as cable ties or wire nuts, depending on the type of connection involved (such as crimping, loom, or braiding). However, following these steps can help ensure a reliable and functioning connection between inputs and outputs.
+2026-01-11 18:38:48,641 - text-searcher-api - INFO - Step 5: Constructing context and generating final response...
+2026-01-11 18:38:48,642 - chat-client - INFO - Sending chat request to Ollama: tinyllama
+2026-01-11 18:39:25,243 - text-searcher-api - INFO - Step 6: Final answer generated.
