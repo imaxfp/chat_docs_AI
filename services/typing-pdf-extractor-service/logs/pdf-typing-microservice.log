@@ -2805,3 +2805,34 @@ fitz.FileDataError: cannot open broken document
 2026-01-11 16:42:26,521 - persistence-service - INFO - Persisting metadata and chunks for PDF e7e1e6b2-f9bf-49bd-b5e2-0aa01c6e0828...
 2026-01-11 16:42:26,545 - persistence-service - INFO - Successfully persisted metadata and 79 chunks for PDF e7e1e6b2-f9bf-49bd-b5e2-0aa01c6e0828.
 2026-01-11 16:42:26,545 - persistence-service - INFO - Updating extraction status for e7e1e6b2-f9bf-49bd-b5e2-0aa01c6e0828 to 'success'...
+2026-01-11 16:58:18,833 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 17:59:43,677 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:03:44,651 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:06:34,983 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:14:03,066 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-11 18:37:46,583 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:02:48,764 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:13:16,471 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:16:58,435 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:22:16,261 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:32:50,071 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:35:51,732 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:39:12,715 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 12:44:07,426 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 13:26:49,257 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 13:42:30,759 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 13:48:08,075 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 13:49:58,824 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 13:52:01,717 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 13:53:04,712 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 13:53:49,797 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 14:02:58,899 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 14:10:05,332 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 14:11:47,151 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 14:23:11,005 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 14:32:47,099 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 15:00:18,632 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 15:02:39,039 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 15:10:01,234 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 15:17:12,130 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000
+2026-01-12 15:22:25,046 - pdf-processor - INFO - Initializing MinIO client connection to minio:9000

@@ -253,13 +253,39 @@ services:
       - DB_PASS=pdfpassword
       - QDRANT_HOST=qdrant-vector-db
       - QDRANT_PORT=6333
+      - OLLAMA_CHAT_MODEL=gemma:2b
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
     volumes:
       - ./services/chat-docs-service:/app
     depends_on:
-      - qdrant-vector-db
-      - pg-typing-pdf-extractor-db
+      qdrant-vector-db:
+        condition: service_healthy
+      pg-typing-pdf-extractor-db:
+        condition: service_healthy
+      ollama-llm-chat:
+        condition: service_healthy
+      ollama-llm-embedding:
+        condition: service_healthy
     ports:
       - "8003:8000"
+      - "5679:5679"
+    command: "python -m debugpy --listen 0.0.0.0:5679 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+
+  # -----------------------------
+  # Chat UI (Frontend)
+  # -----------------------------
+  # Simple static UI for interacting with the AI Agent.
+  ui:
+    build:
+      context: ./services/chat-docs-ui
+    container_name: chat-docs-ui
+    restart: always
+    environment:
+      - CHAT_API_URL=http://localhost:8003/ask_llm_model
+    ports:
+      - "8081:80"
+    depends_on:
+      - chat-docs-service
 
   # -----------------------------
   # PDF Embedding Microservice
@@ -278,7 +304,7 @@ services:
       - QDRANT_HOST=qdrant-vector-db
       - QDRANT_PORT=6333
       - OLLAMA_EMBEDDING_URL=http://ollama-llm-embedding:11434
-      - OLLAMA_MODEL=nomic-embed-text
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
     volumes:
       - ./services/embedding-service:/app
     depends_on:
@@ -321,7 +347,15 @@ services:
     restart: always
     tty: true
     environment:
-      - OLLAMA_MODEL=tinyllama
+      - OLLAMA_MODEL=gemma:2b
+    deploy:
+      resources:
+        limits:
+          cpus: '8.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
     volumes:
       - ./volumes/ollama-llm-chat-data:/root/.ollama
     ports:

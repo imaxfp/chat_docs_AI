@@ -1,9 +1,13 @@
 import os
+import time
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Optional
 from search_service import SearchService
+from chat_with_ollama_llm import ChatWithOllamaLlm
+from prompts import USER_LOOKING_FOR_PROMPT, RAG_FINAL_ANSWER_TEMPLATE
 from logger_config import setup_logger
 from dotenv import load_dotenv
 
@@ -12,20 +16,16 @@ load_dotenv(".env.dev")
 
 logger = setup_logger("text-searcher-api")
 
-# Global service instance
-search_service = None
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle events to initialize services."""
-    global search_service
     logger.info("Starting Text Searcher Microservice...")
     try:
-        search_service = SearchService()
-        logger.info("Service initialized successfully.")
+        app.state.search_service = SearchService()
+        app.state.chat_with_ollama_llm = ChatWithOllamaLlm()
+        logger.info("Services initialized successfully.")
     except Exception as e:
-        logger.error(f"Failed to initialize SearchService: {e}")
-        # We don't raise here to allow the app to start (and fail on actual requests or health checks)
+        logger.error(f"Failed to initialize services: {e}")
     yield
     logger.info("Shutting down Text Searcher Microservice...")
 
@@ -36,23 +36,40 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Enable CORS for the UI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For development; refine for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class SearchRequest(BaseModel):
     query: str
     limit: int = 5
+    debug_flag: bool = False
 
 class SearchResponse(BaseModel):
     score: float
-    pdf_id: str
-    pdf_name: str
-    page_number: int
-    chunk_index: int
+    pdf_id: Optional[str] = None
+    pdf_name: Optional[str] = "Unknown"
+    page_number: Optional[int] = None
+    chunk_index: Optional[int] = None
     full_text: str
-    metadata: Dict
+    metadata: Optional[Dict] = None
     chunk_id: str
 
+class AskLlmResponse(BaseModel):
+    final_llm_answer: str
+    duration_seconds: float
+    sources: Optional[List[SearchResponse]] = None
+    debug_info: Optional[Dict] = None
+
 @app.get("/health")
-async def health():
+async def health(request: Request):
     """Basic health check endpoint."""
+    search_service = getattr(request.app.state, "search_service", None)
     if search_service is None:
         raise HTTPException(status_code=503, detail="Search service not initialized")
     return {
@@ -61,21 +78,99 @@ async def health():
         "qdrant_host": search_service.qdrant_host
     }
 
-@app.post("/search", response_model=List[SearchResponse])
-async def find_by_text(request: SearchRequest):
+@app.post("/search_in_pdf_chunks_by_full_text_similarity", response_model=List[SearchResponse])
+async def find_by_text(request: Request, search_request: SearchRequest):
     """
-    Search for semantically similar text chunks across processed PDFs using a POST request.
+    Search for semantically similar text chunks across processed PDFs.
+    
+    Workflow:
+    1. Convert user query to embedding with ollama-llm-embedding-service.
+    2. Find the most similar chunks in Qdrant (top 5).
+    3. Read context from Postgres (full text, filename, metadata).
+    4. Format and return results.
     """
+    search_service = getattr(request.app.state, "search_service", None)
     if search_service is None:
         raise HTTPException(status_code=503, detail="Search service is currently unavailable")
     
     try:
-        results = search_service.find_by_text(request.query, request.limit)
+        logger.info(f"Triggering semantic search for query: {search_request.query}")
+        results = search_service.find_by_text(search_request.query, search_request.limit)
         return results
     except Exception as e:
         logger.error(f"API Error during search: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/ask_llm_model", response_model=AskLlmResponse, response_model_exclude_none=True)
+async def ask_llm_model(request: Request, search_request: SearchRequest):
+    """
+    Complete RAG Workflow with optional debugging:
+    1. Refine search intent.
+    2. Perform semantic search.
+    3. Construct context and generate final answer.
+    """
+    search_service = getattr(request.app.state, "search_service", None)
+    chat_with_ollama_llm = getattr(request.app.state, "chat_with_ollama_llm", None)
+    
+    if search_service is None or chat_with_ollama_llm is None:
+        raise HTTPException(status_code=503, detail="Services not initialized")
+    
+    start_time = time.time()
+    try:
+        user_looking_for_query = search_request.query
+        # Step 1: Refine query for searching
+        # Can be used for a better search intent
+        
+        # logger.info(f"Step 1: Refining search query for: {user_looking_for_query}")
+        # user_looking_for_query = chat_with_ollama_llm.generate_response(USER_LOOKING_FOR_PROMPT, user_looking_for_query)
+        # logger.info(f"Refined search query: {user_looking_for_query}")
+        
+        # # Step 2 & 3: Search Qdrant and get PostgreSQL context
+        logger.info(f"Step 2/3: Searching Qdrant and fetching context for: {user_looking_for_query}")
+        search_results = search_service.find_by_text(user_looking_for_query, search_request.limit)
+        logger.info(f"Retrieved {len(search_results)} relevant chunks.")
+                
+        # Step 5: Combine context and generate final answer
+        logger.info("Step 5: Constructing context and generating final response...")
+        context_text = "\n\n".join([
+            f"Source: {res.get('pdf_name')}\nContent: {res.get('full_text')}" 
+            for res in search_results
+        ])
+        
+        final_prompt = RAG_FINAL_ANSWER_TEMPLATE.format(
+            query=user_looking_for_query,
+            context=context_text
+        )
+        
+        # Step 5: Generate final answer
+        # We pass an empty string as system prompt since instructions are now in the user prompt template
+        llm_answer = chat_with_ollama_llm.generate_response("", final_prompt)
+        logger.info("Step 5: Final answer generated.")
+        
+        duration = round(time.time() - start_time, 2)
+        
+        # Prepare response based on debug_flag
+        response = AskLlmResponse(
+            final_llm_answer=llm_answer,
+            duration_seconds=duration
+        )
+        
+        if search_request.debug_flag:            
+            response.sources = search_results
+            response.debug_info = {
+                "refined_query": user_looking_for_query                        
+            }
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in RAG flow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    #uvicorn.run(app, host="0.0.0.0", port=80
+    # Note: reload=True requires passing the app as an import string "main:app"
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")
