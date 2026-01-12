@@ -105,3 +105,6 @@ b'{"status":{"error":"Not found: Collection `pdf_chunks` doesn\'t exist!"},"time
 2026-01-11 16:44:03,517 - processor - INFO - --- SUCCESS: PDF e7e1e6b2-f9bf-49bd-b5e2-0aa01c6e0828 embeddings generated and stored ---
 2026-01-11 16:44:03,518 - processor - INFO - --- BACKGROUND PROCESSING COMPLETE ---
 2026-01-11 16:44:12,281 - api-server - INFO - Received status request for 1 PDFs
+2026-01-12 13:26:49,658 - qdrant-service - ERROR - Error ensuring Qdrant collection: [Errno 111] Connection refused
+2026-01-12 13:42:31,799 - qdrant-service - ERROR - Error ensuring Qdrant collection: [Errno 111] Connection refused
+2026-01-12 13:52:02,727 - qdrant-service - ERROR - Error ensuring Qdrant collection: [Errno 111] Connection refused
