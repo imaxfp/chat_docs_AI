@@ -289,5 +289,10 @@ The environment is pre-configured for remote debugging using `debugpy`.
 
 ---
 
+## Origin
+
+This project is open source and originally created by [imaxfp@gmail.com](https://github.com/imaxfp/chat_docs_AI).
+Please retain attribution when using or modifying this project.
+
 ## 🏷 Tags
 `Airflow 3.x` • `MinIO` • `Qdrant` • `PostgreSQL` • `RAG` • `Docker` • `Python` • `FastAPI` • `Ollama` • `LLM` • `GenAI`
