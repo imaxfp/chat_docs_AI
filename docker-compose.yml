@@ -200,7 +200,8 @@ services:
   # Extracts MachineTyping text from PDF files in MinIO and generates embedding vectors.
   typing-pdf-extractor-service:
     build:
-      context: ./services/typing-pdf-extractor-service
+      context: .
+      dockerfile: services/typing-pdf-extractor-service/Dockerfile
     container_name: typing-pdf-extractor-service
     restart: always
     env_file:
@@ -243,7 +244,8 @@ services:
   # Allows semantic search over processed PDF chunks and provides chat interface.
   chat-docs-service:
     build:
-      context: ./services/chat-docs-service
+      context: .
+      dockerfile: services/chat-docs-service/Dockerfile
     container_name: chat-docs-service
     restart: always
     environment:
@@ -293,7 +295,8 @@ services:
   # Fetches chunks from SQL, generates vectors via Ollama, and stores in Qdrant.
   embedding-service:
     build:
-      context: ./services/embedding-service
+      context: .
+      dockerfile: services/embedding-service/Dockerfile
     container_name: embedding-service
     restart: always
     environment:

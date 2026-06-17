@@ -11,10 +11,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-# Warm up the model (download it during build)
-# Embedding warming removed as we use remote services
+COPY services/chat-docs-service/ .
 
 EXPOSE 8000
 

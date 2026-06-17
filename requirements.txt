@@ -1,0 +1,26 @@
+# Web Framework
+fastapi
+uvicorn
+pydantic>=2.7.4
+python-multipart
+
+# Database
+psycopg2-binary
+
+# Storage
+minio
+
+# PDF Processing
+pymupdf
+
+# Vector DB
+qdrant-client
+
+# AI / LLM
+langchain
+langchain-ollama
+
+# Utilities
+python-dotenv
+requests
+debugpy
